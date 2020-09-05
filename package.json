@@ -1,0 +1,27 @@
+{
+  "name": "components",
+  "version": "1.0.0",
+  "description": "components",
+  "main": "main.js",
+  "dependencies": {
+    "prettier": "^2.0.5"
+  },
+  "devDependencies": {
+    "@types/html5plus": "^1.0.1",
+    "@types/uni-app": "^1.4.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/19103-qianlan/components.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/19103-qianlan/components/issues"
+  },
+  "homepage": "https://github.com/19103-qianlan/components#readme"
+}
