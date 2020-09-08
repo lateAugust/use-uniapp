@@ -20,39 +20,39 @@
 import { mapActions } from "vuex";
 let unlimited = {
   name: "不限",
-  id: -10
+  id: -10,
 };
 export default {
   props: {
     last: {
       type: Boolean,
-      default: false
+      default: false,
     },
     useStyle: {
       type: Boolean,
-      default: true
+      default: true,
     },
     level: {
       type: Number,
-      default: 2
+      default: 2,
     },
     /*
      * provinces, cities, district, area
      * */
     valueKey: {
       type: String,
-      validator: val => {
+      validator: (val) => {
         let array = ["provinces", "cities", "district", "area"];
         return !(val && !array.includes(val));
       },
-      default: ""
+      default: "",
     },
     /**
      * ['areas', 'district', 'cities']
      */
     limit: {
       type: Array,
-      validator: val => {
+      validator: (val) => {
         if (val.length > 3) return false;
         let array = ["areas", "district", "cities"];
         for (let item of val) {
@@ -60,16 +60,16 @@ export default {
         }
         return true;
       },
-      default: () => []
+      default: () => [],
     },
     placeholder: {
       type: String,
-      default: "还未选择"
+      default: "还未选择",
     },
     value: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   data() {
     return {
@@ -85,14 +85,23 @@ export default {
         provinces: "",
         cities: "",
         district: "",
-        area: ""
-      }
+        area: "",
+      },
+      loaded: true,
     };
   },
   created() {
     this.getValue();
   },
-  watch: {},
+  watch: {
+    value() {
+      if (this.loaded) {
+        this.setValue();
+      } else {
+        this.loaded = true;
+      }
+    },
+  },
   computed: {},
   methods: {
     ...mapActions("pcd", ["getCityData"]),
@@ -107,8 +116,9 @@ export default {
         provinces: provinces.name || "",
         cities: cities.name || "",
         district: district.name || "",
-        area: area.name || ""
+        area: area.name || "",
       };
+      this.loaded = false;
       this.$emit("input", [provinces.id || null, cities.id || null, district.id || null, area.id || null]);
     },
     handleColumnChange(e) {
@@ -168,7 +178,7 @@ export default {
       return title || this.placeholder;
     },
     addUnlimited(data, key) {
-      if (data[0] && data[0].id !== -10 && this.limit.includes(key)) {
+      if ((!data[0] || data[0].id !== -10) && this.limit.includes(key)) {
         data.unshift(unlimited);
       }
     },
@@ -180,13 +190,14 @@ export default {
       return index;
     },
     getValue() {
-      this.getCityData().then(res => {
+      this.getCityData().then((res) => {
         let cityData = JSON.parse(JSON.stringify(res.data));
         this.cityData = cityData;
-        let provinces = cityData.map(item => ({ name: item.name, id: item.id }));
+        let provinces = cityData.map((item) => ({ name: item.name, id: item.id }));
         let cities = cityData[0].children;
         let district = cities[0].children;
         let areas = district[0].children;
+        this.addUnlimited(cities, "cities");
         this.provinces = provinces;
         this.cUnlimited = this.limit.includes("cities");
         this.dUnlimited = this.limit.includes("district");
@@ -198,7 +209,7 @@ export default {
         range.splice(0, 1, provinces);
         let level = this.level;
         if (level >= 2) {
-          range.splice(1, 1, this.cUnlimited ? [unlimited] : cities);
+          range.splice(1, 1, cities);
         }
         if (level >= 3) {
           range.splice(2, 1, this.dUnlimited ? [unlimited] : district);
@@ -213,32 +224,34 @@ export default {
     setValue() {
       let v = this.value;
       let len = v.length;
-      if (len) {
+      if (len && v[0] !== null) {
         let level = this.level;
         let cityData = this.cityData;
         let [pIndex, cIndex, dIndex, aIndex] = [-1, -1, -1, -1];
-        pIndex = this.provinces.findIndex(item => item.id === v[0]);
+        pIndex = this.provinces.findIndex((item) => item.id === v[0]);
+        console.log(pIndex);
         let range = [this.provinces];
         this.valueType.provinces = this.provinces[pIndex].name;
         let [district, cities, areas] = [[], [], []];
-        if (len >= 2 && level >= 2) {
+        if (level >= 2) {
           cities = cityData[pIndex].children;
           this.addUnlimited(cities, "cities");
-          cIndex = cities.findIndex(item => item.id === v[1]);
+          cIndex = cities.findIndex((item) => item.id === v[1]);
           this.valueType.cities = (cities[cIndex] || {}).name || "";
           range.push(cities);
         }
-        if (len >= 3 && level >= 3) {
+        if (level >= 3) {
           district = (cities[cIndex] || {}).children || [];
           this.addUnlimited(district, "district");
-          dIndex = district.findIndex(item => item.id === v[2]);
+          dIndex = district.findIndex((item) => item.id === v[2]);
           this.valueType.district = (district[dIndex] || {}).name || "";
           range.push(district);
         }
-        if (len >= 4 && level >= 4) {
+        if (level >= 4) {
           areas = (district[dIndex] || {}).children || [];
           this.addUnlimited(areas, "areas");
-          aIndex = areas.findIndex(item => item.id === v[3]);
+          console.log(areas);
+          aIndex = areas.findIndex((item) => item.id === v[3]);
           this.valueType.area = (areas[aIndex] || {}).name || "";
           range.push(areas);
         }
@@ -247,11 +260,11 @@ export default {
           pIndex,
           this.cUnlimited && cIndex === -1 ? 0 : cIndex,
           this.dUnlimited && dIndex === -1 ? 0 : dIndex,
-          this.aUnlimited && aIndex === -1 ? 0 : aIndex
+          this.aUnlimited && aIndex === -1 ? 0 : aIndex,
         ];
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

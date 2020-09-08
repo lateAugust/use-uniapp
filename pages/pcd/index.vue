@@ -1,6 +1,6 @@
 <template>
   <div class="padding">
-    <pcd v-model="value" :level="level" :limit="limit"></pcd>
+    <pcd v-model="value" :level="level" :limit="[] || limit"></pcd>
   </div>
 </template>
 
@@ -12,10 +12,15 @@ export default {
   },
   data() {
     return {
-      value: [4, 37, 38, 2725], //[12, 8601, 8883, 31744] 9, 2394, 8886, 31405
+      value: [], //[12, 8601, 8883, 31744] 9, 2394, 8886, 31405
       limit: ["areas", "district", "cities"], // 'areas', 'district', 'cities'
       level: 4
     };
+  },
+  mounted() {
+    setTimeout(() => {
+      this.value = [4, 37, 52363666666];
+    }, 1500);
   }
 };
 </script>
