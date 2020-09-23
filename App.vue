@@ -12,7 +12,7 @@ export default {
     console.log("App Hide");
   },
   methods: {
-    ...mapActions("pcd", ["getCityData"])
+    ...mapActions("provinces", ["getCityData"])
   }
 };
 </script>

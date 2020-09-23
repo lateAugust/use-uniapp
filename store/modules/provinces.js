@@ -6,25 +6,31 @@ export default {
   },
   actions: {
     getCityData({ state }) {
-      return new Promise((res, rej) => {
+      return new Promise((resolve, rej) => {
         if (!state.cityData.length && !state.loading) {
           uni.getStorage({
             key: "cityData",
             success(data) {
               state.cityData = data.data;
-              res(data);
+              resolve(data);
             },
             fail(err) {
               state.loading = true;
               uni.request({
-                url: "http://192.168.3.92:9902",
+                url: "https://dev.km999.com:10088/api/city/all",
                 success(res) {
-                  state.cityData = res.data;
-                  uni.setStorage({
-                    key: "cityData",
-                    data: res.data
-                  });
-                  res(res);
+                  let data = res.data;
+                  if (data.data && data.data instanceof Array) {
+                    state.cityData = data.data;
+                    uni.setStorage({
+                      key: "cityData",
+                      data: data.data
+                    });
+                  } else {
+                    data = {};
+                    data.data = [];
+                  }
+                  resolve(data);
                 },
                 fail(err) {
                   rej(err);
@@ -36,7 +42,7 @@ export default {
             }
           });
         } else {
-          res({ data: state.cityData });
+          resolve({ data: state.cityData });
         }
       });
     }
