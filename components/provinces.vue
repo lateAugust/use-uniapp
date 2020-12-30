@@ -10,8 +10,7 @@
     <view class="picker" v-if="last" :class="[useStyle ? 'sel text-cut' : '']">
       {{ showTitle() }}
     </view>
-    <view class="picker" v-else>
-      {{ showTitle() }}
+    <view class="picker" v-else>{{ showTitle() }}
     </view>
   </picker>
 </template>
